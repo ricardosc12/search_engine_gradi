@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "server\\node_modules": true,
+    ".vscode": true
+  }
+}
