@@ -109,19 +109,30 @@ app.get('/game', async (req, res) => {
     //         }
     //     }
     // })
-
     const response = await elasticClient.search({
-        index: 'jogos',
-        size: 15,
-        from: 0,
         query: {
             function_score: {
                 query: {
-                    match: {
-                        name: {
-                            query: name as string,
-                            fuzziness: "AUTO"
-                        }
+                    bool: {
+                        should: [
+                            {
+                                match: {
+                                    "name.standard": {
+                                        query: name as string,
+                                        fuzziness: "AUTO",
+                                        boost: 50
+                                    }
+                                }
+                            },
+                            {
+                                match: {
+                                    name: {
+                                        query: name as string,
+                                        fuzziness: "AUTO",
+                                    }
+                                }
+                            }
+                        ]
                     }
                 },
                 functions: [
@@ -135,32 +146,80 @@ app.get('/game', async (req, res) => {
                         },
                         field_value_factor: {
                             field: "positive",
-                            factor: 0.01,
-                            modifier: 'ln2p'
-                            
+                            factor: 0.001,
                         }
                     },
-                    // {
-                    //     filter: {
-                    //         match: {
-                    //             name: {
-                    //                 query: name as string,
-                    //                 fuzziness: "AUTO"
-                    //             }
-                    //         }
-                    //     },
-                    //     field_value_factor: {
-                    //         field: "recommendations",
-                    //         factor: 0.01
-                    //     }
-                    // }
                 ],
                 score_mode: "sum",
                 boost_mode: "multiply"
             }
+            // match: {
+            //     name: {
+            //         query: name as string,
+            //         fuzziness: "AUTO"
+            //     }
+            // }
+            // match: {
+            //     "name.standard": {
+            //         query: name as string,
+            //         fuzziness: "AUTO"
+            //     }
 
-        },
-    });
+            // }
+        }
+
+    })
+    // const response = await elasticClient.search({
+    //     index: 'jogos',
+    //     size: 15,
+    //     from: 0,
+    //     query: {
+    //         function_score: {
+    //             query: {
+    //                 match: {
+    //                     name: {
+    //                         query: name as string,
+    //                         fuzziness: "AUTO"
+    //                     }
+    //                 }
+    //             },
+    //             functions: [
+    //                 {
+    //                     filter: {
+    //                         match: {
+    //                             name: {
+    //                                 query: name as string,
+    //                             }
+    //                         }
+    //                     },
+    //                     field_value_factor: {
+    //                         field: "positive",
+    //                         factor: 0.01,
+    //                         modifier: 'ln2p'
+
+    //                     }
+    //                 },
+    //                 // {
+    //                 //     filter: {
+    //                 //         match: {
+    //                 //             name: {
+    //                 //                 query: name as string,
+    //                 //                 fuzziness: "AUTO"
+    //                 //             }
+    //                 //         }
+    //                 //     },
+    //                 //     field_value_factor: {
+    //                 //         field: "recommendations",
+    //                 //         factor: 0.01
+    //                 //     }
+    //                 // }
+    //             ],
+    //             score_mode: "sum",
+    //             boost_mode: "multiply"
+    //         }
+
+    //     },
+    // });
     //@ts-ignore
     const total = response.hits.total.value
 
@@ -169,8 +228,6 @@ app.get('/game', async (req, res) => {
     }
 
     const games = response.hits.hits.map(game => game._source)
-
-    console.log("OK")
 
     return res.status(200).json(games)
 })
@@ -263,6 +320,11 @@ const createIndex2 = async () => {
                             type: 'custom',
                             tokenizer: 'game_token_autocomplete',
                             filter: ['lowercase', 'asciifolding']
+                        },
+                        custom_standanr: {
+                            type: 'custom',
+                            tokenizer: 'standard',
+                            filter: ['lowercase', 'asciifolding']
                         }
                     },
                     tokenizer: {
@@ -280,7 +342,13 @@ const createIndex2 = async () => {
                     id: { type: 'text' },
                     name: {
                         type: 'text',
-                        analyzer: 'game_analyzer_complete' // Utilizando o analyzer customizado
+                        analyzer: 'game_analyzer_complete',// Utilizando o analyzer customizado
+                        fields: {
+                            standard: {
+                                type: 'text', // Multi-field usando o analisador padrão
+                                analyzer: 'custom_standanr'
+                            }
+                        }
                     },
                     image: {
                         type: 'text',
