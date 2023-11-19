@@ -1,0 +1,5 @@
+{
+  "files.exclude": {
+    "games_search_app\\node_modules": true
+  }
+}
