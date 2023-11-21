@@ -1,12 +1,11 @@
-import { SearchGame } from "./components/organisms/Search";
-import { Header } from "./layout/header";
+import { Layout } from "./layout";
+import { Sidebar } from "./layout/Sidebar";
 
 export default function App() {
     return (
-        <>
-            <Header />
-
-            <SearchGame />
-        </>
+        <div class="flex">
+            <Sidebar />
+            <Layout />
+        </div>
     )
 }

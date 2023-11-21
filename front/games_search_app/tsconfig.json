@@ -26,6 +26,18 @@
       "@/*": [
         "./src/*"
       ],
+      "@molecules/*": [
+        "./src/app/components/molecules/*"
+      ],
+      "@atoms/*": [
+        "./src/app/components/atoms/*"
+      ],
+      "@organisms/*": [
+        "./src/app/components/organisms/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
     }
   },
   "include": [

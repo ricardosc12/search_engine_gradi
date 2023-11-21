@@ -1,0 +1,16 @@
+.input {
+    padding: 3px 12px;
+    border-radius: 9px;
+    background-color: var(--hover-main);
+    color: rgba(215, 210, 210);
+}
+
+.input:hover {
+    background-color: var(--hover-main-active);
+}
+
+.input::placeholder {
+    font-weight: 400;
+    font-size: 14px;
+    /* color: red; */
+}

@@ -1,0 +1,8 @@
+.root {
+    position: absolute;
+    margin-left: 145px;
+    width: calc(100% - 145px);
+    height: 100%;
+    background-color: var(--background-color);
+    padding-top: var(--header-padding-top);
+}

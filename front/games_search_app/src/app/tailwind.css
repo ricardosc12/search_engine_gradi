@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    color: rgba(240, 240, 245);
+}
+
+:root {
+    --header-padding-top: 2rem;
+    --hover-main: rgba(130, 100, 100, .2);
+    --hover-main-active: rgba(160, 120, 120, .2);
+    --steam-color: #1A9FFF;
+    --background-color: #141921;
+}

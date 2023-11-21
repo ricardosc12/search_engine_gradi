@@ -2,6 +2,8 @@ import { searchGamebyName } from "@/api/game"
 import { useDebouce } from "@/utils/debounce"
 import { For, createSignal, onMount } from "solid-js"
 import gitImage from '@/utils/steam.gif'
+import { GameProps } from "../../interfaces/game"
+import { Input } from "../../atoms/Input"
 
 export function SearchGame() {
 
@@ -18,7 +20,7 @@ export function SearchGame() {
             setGames(resp.data)
         }
 
-        else if (resp.status == 204) {
+        else {
             setGames([])
         }
 
@@ -26,19 +28,13 @@ export function SearchGame() {
     }
 
     return (
-        <div class="flex flex-col items-center justify-center w-full">
-            <input placeholder="Game" oninput={handleSearchDebounce} />
-
+        <div class="flex flex-col items-center justify-center">
+            <Input placeholder="Game" oninput={handleSearchDebounce} />
             <GamesList list={games()} />
         </div>
     )
 }
 
-interface GameProps {
-    id: string;
-    name: string;
-    image: string;
-}
 
 interface GameListPros {
     list: Array<GameProps>

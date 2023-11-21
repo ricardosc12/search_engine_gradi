@@ -7,6 +7,10 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(__dirname, 'src') },
+      { find: '@molecules', replacement: path.resolve(__dirname, 'src') },
+      { find: '@atoms', replacement: path.resolve(__dirname, 'src') },
+      { find: '@organisms', replacement: path.resolve(__dirname, 'src') },
+      { find: '@utils', replacement: path.resolve(__dirname, 'src') },
     ],
   },
 })
