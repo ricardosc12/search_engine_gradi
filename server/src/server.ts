@@ -10,6 +10,7 @@ const shrinkRay = require('shrink-ray-current');
 import express from 'express';
 import bodyParser from 'body-parser'
 import { RepositoryController } from './repositories/controller';
+import { filterGame } from './cases/Game/filter';
 
 const app = express();
 const port = process.env.PORT;
@@ -88,51 +89,42 @@ app.post('/users', async (req, res) => {
 
 app.get('/game', async (req, res) => {
 
-    const { name } = req.query
+    const { name, ...extra } = req.query
 
-    // const response = await elasticClient.search({
-    //     index: 'jogos',
-    //     query: {
-    //         bool: {
-    //             should: [
-    //                 {
-    //                     fuzzy: {
-    //                         name: name as string
-    //                     },
-    //                 },
-    //                 {
-    //                     wildcard: {
-    //                         name: (name as string) + '*'
-    //                     }
-    //                 }
-    //             ]
-    //         }
-    //     }
-    // })
+    //@ts-ignore
+    const filters = filterGame(extra)
+
     const response = await elasticClient.search({
         query: {
             function_score: {
                 query: {
                     bool: {
-                        should: [
-                            {
-                                match: {
-                                    "name.standard": {
-                                        query: name as string,
-                                        fuzziness: "AUTO",
-                                        boost: 50
+                        must: {
+                            bool: {
+                                should: [
+                                    {
+                                        match: {
+                                            "name.standard": {
+                                                query: name as string,
+                                                fuzziness: 1,
+                                                boost: 5
+                                            }
+                                        }
+                                    },
+                                    {
+                                        match: {
+                                            name: {
+                                                query: name as string,
+                                                fuzziness: 1,
+                                            }
+                                        }
                                     }
-                                }
-                            },
-                            {
-                                match: {
-                                    name: {
-                                        query: name as string,
-                                        fuzziness: "AUTO",
-                                    }
-                                }
+                                ]
                             }
-                        ]
+                        },
+                        ...(filters.length) && {
+                            filter: filters
+                        }
                     }
                 },
                 functions: [
@@ -147,40 +139,41 @@ app.get('/game', async (req, res) => {
                         field_value_factor: {
                             field: "positive",
                             factor: 0.001,
+                            modifier: "ln2p"
                         }
                     },
                 ],
                 score_mode: "sum",
                 boost_mode: "multiply"
-            }
-            // match: {
-            //     name: {
-            //         query: name as string,
-            //         fuzziness: "AUTO"
-            //     }
-            // }
-            // match: {
-            //     "name.standard": {
-            //         query: name as string,
-            //         fuzziness: "AUTO"
-            //     }
+            },
 
-            // }
         }
-
     })
+
     // const response = await elasticClient.search({
-    //     index: 'jogos',
-    //     size: 15,
-    //     from: 0,
     //     query: {
     //         function_score: {
     //             query: {
-    //                 match: {
-    //                     name: {
-    //                         query: name as string,
-    //                         fuzziness: "AUTO"
-    //                     }
+    //                 bool: {
+    //                     should: [
+    //                         {
+    //                             match: {
+    //                                 "name.standard": {
+    //                                     query: name as string,
+    //                                     fuzziness: "AUTO",
+    //                                     boost: 50
+    //                                 }
+    //                             }
+    //                         },
+    //                         {
+    //                             match: {
+    //                                 name: {
+    //                                     query: name as string,
+    //                                     fuzziness: "AUTO",
+    //                                 }
+    //                             }
+    //                         }
+    //                     ]
     //                 }
     //             },
     //             functions: [
@@ -194,32 +187,16 @@ app.get('/game', async (req, res) => {
     //                     },
     //                     field_value_factor: {
     //                         field: "positive",
-    //                         factor: 0.01,
-    //                         modifier: 'ln2p'
-
+    //                         factor: 0.001,
     //                     }
     //                 },
-    //                 // {
-    //                 //     filter: {
-    //                 //         match: {
-    //                 //             name: {
-    //                 //                 query: name as string,
-    //                 //                 fuzziness: "AUTO"
-    //                 //             }
-    //                 //         }
-    //                 //     },
-    //                 //     field_value_factor: {
-    //                 //         field: "recommendations",
-    //                 //         factor: 0.01
-    //                 //     }
-    //                 // }
     //             ],
     //             score_mode: "sum",
     //             boost_mode: "multiply"
     //         }
+    //     }
+    // })
 
-    //     },
-    // });
     //@ts-ignore
     const total = response.hits.total.value
 
@@ -258,7 +235,18 @@ async function bulkGames() {
 
     const cursor = await repository.getDb("steam").collection("games")
         .find()
-        .project({ name: 1, image: 1, positive: 1, recommendations: 1 })
+        .project({
+            name: 1,
+            image: 1,
+            positive: 1,
+            recommendations: 1,
+            languages: 1,
+            categories: 1,
+            genres: 1,
+            developers: 1,
+            publishers: 1,
+            release_date: 1
+        })
 
     const games = await cursor.toArray();
 
@@ -267,7 +255,13 @@ async function bulkGames() {
         name: game.name,
         image: game.image,
         positive: game.positive,
-        recommendations: game.recommendations
+        recommendations: game.recommendations,
+        languages: game.languages,
+        categories: game.categories,
+        genres: game.genres,
+        developers: game.developers,
+        publishers: game.publishers,
+        release_date: game.release_date
     }))
 
     const operations = bulkGames.flatMap(doc => [{ index: { _index: 'jogos' } }, doc])
@@ -325,6 +319,11 @@ const createIndex2 = async () => {
                             type: 'custom',
                             tokenizer: 'standard',
                             filter: ['lowercase', 'asciifolding']
+                        },
+                        tags_analyzer: {
+                            type: 'custom',
+                            tokenizer: 'tags_tokenizer',
+                            filter: ['lowercase', 'asciifolding', 'trim']
                         }
                     },
                     tokenizer: {
@@ -333,6 +332,10 @@ const createIndex2 = async () => {
                             min_gram: 2,
                             max_gram: 10,
                             token_chars: ['letter', 'digit', 'whitespace', `punctuation`]
+                        },
+                        tags_tokenizer: {
+                            type: 'pattern',
+                            pattern: ','
                         }
                     }
                 }
@@ -342,24 +345,48 @@ const createIndex2 = async () => {
                     id: { type: 'text' },
                     name: {
                         type: 'text',
-                        analyzer: 'game_analyzer_complete',// Utilizando o analyzer customizado
+                        analyzer: 'game_analyzer_complete',
                         fields: {
                             standard: {
-                                type: 'text', // Multi-field usando o analisador padrão
+                                type: 'text',
                                 analyzer: 'custom_standanr'
                             }
                         }
                     },
                     image: {
                         type: 'text',
-                        index: false // Campo não será indexado
+                        index: false
                     },
                     positive: {
                         type: 'integer'
                     },
                     recommendations: {
                         type: 'integer'
-                    }
+                    },
+                    languages: {
+                        type: 'text',
+                        analyzer: 'tags_analyzer'
+                    },
+                    categories: {
+                        type: 'text',
+                        analyzer: 'tags_analyzer'
+                    },
+                    genres: {
+                        type: 'text',
+                        analyzer: 'tags_analyzer'
+                    },
+                    developers: {
+                        type: 'text',
+                        analyzer: "tags_analyzer"
+                    },
+                    publishers: {
+                        type: 'text',
+                        analyzer: "tags_analyzer"
+                    },
+                    release_date: {
+                        type: 'date',
+                        format: 'yyyy-MM-dd'
+                    },
                 }
             }
         }
