@@ -4,6 +4,9 @@ import { For, createSignal, onMount } from "solid-js"
 import gitImage from '@/utils/steam.gif'
 import { GameProps } from "../../interfaces/game"
 import { Input } from "../../atoms/Input"
+import { FilterIcon, MagicIcon, SearchIcon } from "@/icons"
+import { ToggleButton } from "../../atoms/ToggleButton"
+import style from './style.module.css'
 
 export function SearchGame() {
 
@@ -23,13 +26,31 @@ export function SearchGame() {
         else {
             setGames([])
         }
+    }
 
-        console.log(resp)
+    function handleFocus() {
+        const el = document.getElementById("gamelist")
+        if (el) {
+            el.ariaChecked = "true"
+        }
+    }
+
+    function handleBlur() {
+        setTimeout(() => {
+            const el = document.getElementById("gamelist")
+            if (el) {
+                el.ariaChecked = "false"
+            }
+        }, 100)
     }
 
     return (
-        <div class="flex flex-col items-center justify-center">
-            <Input placeholder="Game" oninput={handleSearchDebounce} />
+        <div class="flex flex-row items-center justify-center relative">
+            <Input id="game-input" icon={SearchIcon} placeholder="Game" oninput={handleSearchDebounce} onblur={handleBlur} onfocus={handleFocus} />
+            <ToggleButton class="ml-3" icon={MagicIcon} />
+            <ToggleButton class="ml-3" icon={FilterIcon}>
+                Filtros Avançados
+            </ToggleButton>
             <GamesList list={games()} />
         </div>
     )
@@ -42,11 +63,11 @@ interface GameListPros {
 
 function GamesList(props: GameListPros) {
     return (
-        <div class="flex flex-col">
+        <div class={style.gamelist} id="gamelist" tabindex="1">
             <For each={props.list}>
                 {(game: GameProps) => {
                     return (
-                        <div class="flex">
+                        <div onclick={(e) => console.log(game.name)} class="flex w-full">
                             <LazyImage src={game.image} />
                             <p>{game.name}</p>
                         </div>

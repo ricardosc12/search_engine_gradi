@@ -11,8 +11,10 @@
 
 :root {
     --header-padding-top: 2rem;
-    --hover-main: rgba(130, 100, 100, .2);
-    --hover-main-active: rgba(160, 120, 120, .2);
+    --hover-main: rgba(100, 100, 110, 0.3);
+    --hover-main-active: rgba(120, 120, 130, .3);
     --steam-color: #1A9FFF;
+    --steam-color-hover: #44b1ff;
+    --steam-color-off: #405c729f;
     --background-color: #141921;
 }

@@ -1,8 +1,16 @@
-import { JSX } from "solid-js/jsx-runtime";
+import { JSX } from 'solid-js/jsx-runtime'
 import style from './style.module.css'
 
-export function Input(props: JSX.HTMLElementTags['input']) {
+interface InputProps extends JSX.HTMLAttributes<HTMLInputElement> {
+    placeholder?: string;
+    icon?: any;
+}
+
+export function Input(props: InputProps) {
     return (
-        <input class={style.input} {...props} />
+        <div class={style.root_input}>
+            {props.icon ? props.icon() : ''}
+            <input {...props} />
+        </div>
     )
 }

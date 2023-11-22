@@ -1,0 +1,29 @@
+.gamelist {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+    background-color: transparent;
+    transform: translateY(40px);
+    border-radius: 7px;
+    max-height: 400px;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+}
+
+.gamelist[aria-checked='false'] {
+    display: none;
+}
+.gamelist::-webkit-scrollbar {
+    width: 3px;
+    border-radius: 99rem;
+}
+.gamelist::-webkit-scrollbar-track {
+    background: var(--steam-color-off);
+    width: 100px;
+}
+.gamelist::-webkit-scrollbar-thumb{
+    background-color: var(--steam-color);
+}
