@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@stitches/core": "^1.2.8",
+    "@tanstack/solid-virtual": "^3.0.0-beta.6",
+    "@thisbeyond/solid-select": "^0.14.0",
     "axios": "^1.6.2",
     "solid-js": "^1.8.5"
   },

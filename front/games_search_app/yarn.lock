@@ -465,6 +465,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@reach/observe-rect@^1.1.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@reach/observe-rect/-/observe-rect-1.2.0.tgz#d7a6013b8aafcc64c778a0ccb83355a11204d3b2"
+  integrity sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==
+
 "@rollup/rollup-android-arm-eabi@4.5.0":
   version "4.5.0"
   resolved "https://registry.npmjs.org/@rollup/rollup-android-arm-eabi/-/rollup-android-arm-eabi-4.5.0.tgz#5984f98288150a2c34928de023bbd122d61ce754"
@@ -529,6 +534,18 @@
   version "1.2.8"
   resolved "https://registry.npmjs.org/@stitches/core/-/core-1.2.8.tgz#dce3b8fdc764fbc6dbea30c83b73bfb52cf96173"
   integrity sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==
+
+"@tanstack/solid-virtual@^3.0.0-beta.6":
+  version "3.0.0-beta.6"
+  resolved "https://registry.npmjs.org/@tanstack/solid-virtual/-/solid-virtual-3.0.0-beta.6.tgz#4ea445499378d5b93b5c73f02465be45f1753936"
+  integrity sha512-/HjeHZb4UZxxFSAkICUEWOozGwHQpKlvtnUoS5uSMSuLOz0XM5vFq6zR6ENwAczKWDtkh8ntddk+zXAhyXOlEw==
+  dependencies:
+    "@reach/observe-rect" "^1.1.0"
+
+"@thisbeyond/solid-select@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.npmjs.org/@thisbeyond/solid-select/-/solid-select-0.14.0.tgz#1f6ed9e2c54818a13943624f4a66e32d5c933062"
+  integrity sha512-ecq4U3Vnc/nJbU84ARuPg2scNuYt994ljF5AmBlzuZW87x43mWiGJ5hEWufIJJMpDT6CcnCIx/xbrdDkaDEHQw==
 
 "@types/babel__core@^7.20.2":
   version "7.20.4"

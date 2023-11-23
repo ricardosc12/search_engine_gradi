@@ -5,6 +5,7 @@
     border-radius: 9px;
     background-color: var(--hover-main);
     color: rgba(215, 210, 210);
+    height: 35px;
 }
 
 .root_input:hover {
@@ -26,6 +27,7 @@
 
 .root_input>input {
     background-color: transparent;
+    width: 100%;
 }
 
 .root_input>input:focus {

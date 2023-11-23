@@ -45,43 +45,15 @@ async function createIndexes() {
 
 app.post('/users', async (req, res) => {
     try {
-        // const cursor = await repository.getDb("steam").collection("games").find().limit(2)
-        // createIndexes()
-        // const cursor = await repository.getDb("steam").collection("games").find({
-        //     $or: [
-        //         {
-        //             $text: {
-        //                 $search: "Perpetual"
-        //             }
-        //         }
-        //     ]
-        // })
 
-        // const cursor = await repository.getDb("steam").collection("games").find(
-        //     {
-        //         $text: { $search: "Spider" },
-        //         languages: {
-        //             $all: [/Vietnamese/, /Finnish/]
-        //         },
-        //         publishers: "Laush Studio"
-        //     }
-        // )
-
-        const cursor = await repository.getDb("steam").collection("games").find({
-            // _id: {
-            //     $in: [
-            //         new ObjectId("6556b76eda4b945a9fd1fe08"),
-            //         new ObjectId("6556b76eda4b945a9fd1fe09")
-            //     ]
-            // },
-            name: { $all: [/Train/] }
-            // languages: { $all: [/French/] }
-        }).project({ name: 1 })
-
+        const cursor = await repository.getDb("steam").collection("games")
+            .find({})
+            // .project({ genres: 1 })
+            .limit(5)
 
         const games = await cursor.toArray();
 
-        res.status(201).json(games);
+        res.status(201).json(Object.values(games));
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -89,38 +61,45 @@ app.post('/users', async (req, res) => {
 
 app.get('/game', async (req, res) => {
 
-    const { name, ...extra } = req.query
+    const { name, size, ...extra } = req.query
 
     //@ts-ignore
     const filters = filterGame(extra)
 
+    if (!name && !filters[0].bool.must.length) {
+        return res.status(204).json([])
+    }
+
     const response = await elasticClient.search({
+        size: Number(size) || 10,
         query: {
             function_score: {
                 query: {
                     bool: {
-                        must: {
-                            bool: {
-                                should: [
-                                    {
-                                        match: {
-                                            "name.standard": {
-                                                query: name as string,
-                                                fuzziness: 1,
-                                                boost: 5
+                        ...(name) && {
+                            must: {
+                                bool: {
+                                    should: [
+                                        {
+                                            match: {
+                                                "name.standard": {
+                                                    query: name as string,
+                                                    fuzziness: 1,
+                                                    boost: 5
+                                                }
+                                            }
+                                        },
+                                        {
+                                            match: {
+                                                name: {
+                                                    query: name as string,
+                                                    fuzziness: 1,
+                                                }
                                             }
                                         }
-                                    },
-                                    {
-                                        match: {
-                                            name: {
-                                                query: name as string,
-                                                fuzziness: 1,
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
+                                    ]
+                                }
+                            },
                         },
                         ...(filters.length) && {
                             filter: filters
@@ -129,12 +108,14 @@ app.get('/game', async (req, res) => {
                 },
                 functions: [
                     {
-                        filter: {
-                            match: {
-                                name: {
-                                    query: name as string,
+                        ...name && {
+                            filter: {
+                                match: {
+                                    name: {
+                                        query: name as string,
+                                    }
                                 }
-                            }
+                            },
                         },
                         field_value_factor: {
                             field: "positive",

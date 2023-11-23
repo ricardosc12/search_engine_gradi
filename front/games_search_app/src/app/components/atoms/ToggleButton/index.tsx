@@ -1,4 +1,5 @@
 import { RootToggleButton } from './style';
+// import { splitProps } from "solid-js";
 
 interface ToggleProps {
     icon?: any;
@@ -9,6 +10,7 @@ interface ToggleProps {
 }
 
 export function ToggleButton(props: ToggleProps) {
+    // const [local, others] = splitProps(props, ["icon"]);
     return (
         <div class={RootToggleButton({
             color: props.color,
