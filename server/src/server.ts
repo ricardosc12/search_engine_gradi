@@ -8,6 +8,7 @@ const elasticClient = new ElastClient({ node: 'http://localhost:9200' });
 const shrinkRay = require('shrink-ray-current');
 
 import express from 'express';
+import cors from 'cors'
 import bodyParser from 'body-parser'
 import { RepositoryController } from './repositories/controller';
 import { filterGame } from './cases/Game/filter';
@@ -15,7 +16,9 @@ import { filterGame } from './cases/Game/filter';
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.json(), shrinkRay(), bodyParser.json());
+app.use(express.json(), shrinkRay(),
+    bodyParser.json(), cors()
+);
 
 const repository = new RepositoryController(process.env.DATABASE_URI)
 
@@ -130,53 +133,6 @@ app.get('/game', async (req, res) => {
 
         }
     })
-
-    // const response = await elasticClient.search({
-    //     query: {
-    //         function_score: {
-    //             query: {
-    //                 bool: {
-    //                     should: [
-    //                         {
-    //                             match: {
-    //                                 "name.standard": {
-    //                                     query: name as string,
-    //                                     fuzziness: "AUTO",
-    //                                     boost: 50
-    //                                 }
-    //                             }
-    //                         },
-    //                         {
-    //                             match: {
-    //                                 name: {
-    //                                     query: name as string,
-    //                                     fuzziness: "AUTO",
-    //                                 }
-    //                             }
-    //                         }
-    //                     ]
-    //                 }
-    //             },
-    //             functions: [
-    //                 {
-    //                     filter: {
-    //                         match: {
-    //                             name: {
-    //                                 query: name as string,
-    //                             }
-    //                         }
-    //                     },
-    //                     field_value_factor: {
-    //                         field: "positive",
-    //                         factor: 0.001,
-    //                     }
-    //                 },
-    //             ],
-    //             score_mode: "sum",
-    //             boost_mode: "multiply"
-    //         }
-    //     }
-    // })
 
     //@ts-ignore
     const total = response.hits.total.value
