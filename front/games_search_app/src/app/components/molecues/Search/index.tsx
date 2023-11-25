@@ -12,11 +12,13 @@ import { useGameStore } from "../../organisms/Main/storage"
 export function SearchGame() {
 
     const [games, setGames] = createSignal([])
-    const { dispatch } = useGameStore()
+    const { dados, dispatch } = useGameStore()
 
     const handleSearchDebounce = useDebouce(handleSearch, 350)
 
     async function handleSearch(e: any) {
+        if (dados.isAdvanced) return
+        
         const value = e.target.value
 
         const resp = await searchGame({ name: value })
@@ -31,6 +33,7 @@ export function SearchGame() {
     }
 
     function handleFocus() {
+        if (dados.isAdvanced) return
         const el = document.getElementById("gamelist")
         if (el) {
             el.ariaChecked = "true"
@@ -53,8 +56,8 @@ export function SearchGame() {
                 icon={SearchIcon} placeholder="Game"
                 oninput={handleSearchDebounce} onblur={handleBlur}
                 onfocus={handleFocus} />
-            <ToggleButton class="ml-3" icon={MagicIcon} />
-            <ToggleButton class="ml-3" icon={FilterIcon}>
+            <ToggleButton onclick={dispatch.setMagic} value={dados.isMagic} class="ml-3" icon={MagicIcon} />
+            <ToggleButton onclick={dispatch.setAdvanced} value={dados.isAdvanced} class="ml-3" icon={FilterIcon}>
                 Filtros Avançados
             </ToggleButton>
             <GamesList list={games()} />

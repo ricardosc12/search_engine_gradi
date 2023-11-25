@@ -1,7 +1,8 @@
+import { JSX } from 'solid-js/jsx-runtime'
 import { RootToggleButton } from './style';
-// import { splitProps } from "solid-js";
+import { splitProps } from "solid-js";
 
-interface ToggleProps {
+interface ToggleProps extends JSX.HTMLAttributes<HTMLDivElement> {
     icon?: any;
     color?: 'azulzinho' | 'azul';
     value?: boolean;
@@ -10,15 +11,15 @@ interface ToggleProps {
 }
 
 export function ToggleButton(props: ToggleProps) {
-    // const [local, others] = splitProps(props, ["icon"]);
+    const [local, others] = splitProps(props, ["icon", "color", "value", "class"]);
     return (
         <div class={RootToggleButton({
-            color: props.color,
-            class: props.class,
-            active: false
-        })}>
-            {props.children ? <p>{props.children}</p> : ''}
-            {props.icon ? props.icon() : ''}
+            color: local.color,
+            class: local.class,
+            active: local.value
+        })} aria-checked={local.value} {...others}>
+            {others.children ? <p>{others.children}</p> : ''}
+            {local.icon ? local.icon() : ''}
         </div>
     )
 }

@@ -1,5 +1,7 @@
 .root_advanced {
-    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0px;
 }
 
 .root_advanced > div > h3 {

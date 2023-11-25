@@ -8,10 +8,13 @@ import { genresProps } from "./options/genres";
 import { Button } from "../../atoms/Button";
 import { useGameStore } from "../../organisms/Main/storage";
 import { useForm } from "@/hooks/form";
+import { createMemo } from "solid-js";
 
 export function AdvancedSearch() {
 
-    const { dispatch } = useGameStore()
+    const { dados, dispatch } = useGameStore()
+
+    const isAdvanced = createMemo(() => dados.isAdvanced)
 
     const { form, set } = useForm()
 
@@ -20,7 +23,7 @@ export function AdvancedSearch() {
     }
 
     return (
-        <div class={style.root_advanced}>
+        <div class={style.root_advanced} style={{ display: isAdvanced() ? 'flex' : 'none' }}>
             <div class="flex items-center mb-3">
                 <FilterIcon class="mr-3" />
                 <h3>Filtros</h3>

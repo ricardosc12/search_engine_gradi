@@ -8,6 +8,7 @@ export const RootToggleButton = styled('div', {
     padding: '5px',
     background: 'var(--steam-color-off)',
     borderRadius: '1000px',
+    userSelect: 'none',
     "& > svg": {
         filter: 'invert(43%) sepia(82%) saturate(562%) hue-rotate(166deg) brightness(106%) contrast(109%)'
     },

@@ -53,15 +53,19 @@ export function GamesList() {
 
     let scrollTargetElement!: HTMLDivElement
 
+    return <TableGrid games={games} />
+
     return (
         <div style={{ overflow: 'auto' }} ref={scrollTargetElement}>
-            <RowVirtualizerFixed games={games} />
+            {/* <RowVirtualizerFixed games={games} /> */}
+            <TableGrid data={Array.from(Array(5000))} />
         </div>
     )
 }
 
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { LazyImage } from "@/app/components/molecues/Search";
+import { TableGrid } from "@/app/components/molecues/Table";
 
 function RowVirtualizerFixed(props: any) {
 
@@ -78,7 +82,7 @@ function RowVirtualizerFixed(props: any) {
         })
     })
 
-    createEffect(on(games, (v) => {
+    createEffect(on(games, () => {
         rowVirtualizer().scrollToIndex(0)
     }, { defer: true }))
 
