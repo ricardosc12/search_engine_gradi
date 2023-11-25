@@ -24,6 +24,8 @@ export function GamesList() {
 
     const { dados } = useGameStore()
 
+    const filters = createMemo(() => dados.filters)
+
     const [games, setGames] = createStore<{ data: Array<GameProps> }>({
         data: []
     });
@@ -45,9 +47,9 @@ export function GamesList() {
         }
     }
 
-    createEffect(() => {
-        handleAdvancedSearch({ ...dados.filters, name: dados.name })
-    })
+    createEffect(on(filters, (f) => {
+        handleAdvancedSearch({ ...f, name: dados.name })
+    }))
 
     let scrollTargetElement!: HTMLDivElement
 
