@@ -5,7 +5,7 @@
     top: 0;
     width: 100%;
     z-index: 99;
-    background-color: transparent;
+    background-color: rgba(0,0,0,.8);
     transform: translateY(40px);
     border-radius: 7px;
     max-height: 400px;
@@ -17,13 +17,13 @@
     display: none;
 }
 .gamelist::-webkit-scrollbar {
-    width: 3px;
-    border-radius: 99rem;
+    width: 4px;
 }
 .gamelist::-webkit-scrollbar-track {
     background: var(--steam-color-off);
-    width: 100px;
+    border-radius: 99rem;
 }
 .gamelist::-webkit-scrollbar-thumb{
+    border-radius: 99rem;
     background-color: var(--steam-color);
 }

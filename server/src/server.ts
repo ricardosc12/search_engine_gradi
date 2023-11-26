@@ -59,6 +59,38 @@ app.post('/users', async (req, res) => {
     }
 });
 
+app.get("/best", async (req, res) => {
+    const response = await elasticClient.search({
+        size: 5,
+        query: {
+            function_score: {
+                functions: [
+                    {
+                        field_value_factor: {
+                            field: "positive",
+                            factor: 1,
+                            modifier: "ln2p"
+                        }
+                    },
+                ],
+                score_mode: "sum",
+                boost_mode: "multiply"
+            },
+        }
+    })
+
+    //@ts-ignore
+    const total = response.hits.total.value
+
+    if (!total) {
+        return res.status(204).json('ok')
+    }
+
+    const games = response.hits.hits.map(game => game._source)
+
+    return res.status(200).json(games)
+})
+
 app.get('/game', async (req, res) => {
 
     const { name, size, ...extra } = req.query
@@ -70,41 +102,51 @@ app.get('/game', async (req, res) => {
         return res.status(204).json([])
     }
 
+    let bool = {};
+    if (!name && filters.length) {
+        bool = {
+            must: filters
+        }
+    }
+    else {
+        bool = {
+            ...(name) && {
+                must: {
+                    bool: {
+                        should: [
+                            {
+                                match: {
+                                    "name.standard": {
+                                        query: name as string,
+                                        fuzziness: 1,
+                                        boost: 5
+                                    }
+                                }
+                            },
+                            {
+                                match: {
+                                    name: {
+                                        query: name as string,
+                                        fuzziness: 1,
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+            },
+            ...(filters.length) && {
+                filter: filters
+            }
+        }
+    }
+
     const response = await elasticClient.search({
         size: Number(size) || 10,
         query: {
             function_score: {
                 query: {
-                    bool: {
-                        ...(name) && {
-                            must: {
-                                bool: {
-                                    should: [
-                                        {
-                                            match: {
-                                                "name.standard": {
-                                                    query: name as string,
-                                                    fuzziness: 1,
-                                                    boost: 5
-                                                }
-                                            }
-                                        },
-                                        {
-                                            match: {
-                                                name: {
-                                                    query: name as string,
-                                                    fuzziness: 1,
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                        },
-                        ...(filters.length) && {
-                            filter: filters
-                        }
-                    }
+                    bool: bool
                 },
                 functions: [
                     {
@@ -130,53 +172,6 @@ app.get('/game', async (req, res) => {
 
         }
     })
-
-    // const response = await elasticClient.search({
-    //     query: {
-    //         function_score: {
-    //             query: {
-    //                 bool: {
-    //                     should: [
-    //                         {
-    //                             match: {
-    //                                 "name.standard": {
-    //                                     query: name as string,
-    //                                     fuzziness: "AUTO",
-    //                                     boost: 50
-    //                                 }
-    //                             }
-    //                         },
-    //                         {
-    //                             match: {
-    //                                 name: {
-    //                                     query: name as string,
-    //                                     fuzziness: "AUTO",
-    //                                 }
-    //                             }
-    //                         }
-    //                     ]
-    //                 }
-    //             },
-    //             functions: [
-    //                 {
-    //                     filter: {
-    //                         match: {
-    //                             name: {
-    //                                 query: name as string,
-    //                             }
-    //                         }
-    //                     },
-    //                     field_value_factor: {
-    //                         field: "positive",
-    //                         factor: 0.001,
-    //                     }
-    //                 },
-    //             ],
-    //             score_mode: "sum",
-    //             boost_mode: "multiply"
-    //         }
-    //     }
-    // })
 
     //@ts-ignore
     const total = response.hits.total.value
@@ -226,7 +221,8 @@ async function bulkGames() {
             genres: 1,
             developers: 1,
             publishers: 1,
-            release_date: 1
+            release_date: 1,
+            price: 1
         })
 
     const games = await cursor.toArray();
@@ -242,7 +238,8 @@ async function bulkGames() {
         genres: game.genres,
         developers: game.developers,
         publishers: game.publishers,
-        release_date: game.release_date
+        release_date: game.release_date,
+        price: game.price
     }))
 
     const operations = bulkGames.flatMap(doc => [{ index: { _index: 'jogos' } }, doc])
@@ -368,6 +365,9 @@ const createIndex2 = async () => {
                         type: 'date',
                         format: 'yyyy-MM-dd'
                     },
+                    price: {
+                        type: "float"
+                    }
                 }
             }
         }

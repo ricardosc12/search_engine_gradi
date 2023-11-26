@@ -18,3 +18,19 @@
     --steam-color-off: #405c729f;
     --background-color: #141921;
 }
+
+.price {
+    background-color: var(--steam-color-off);
+    color: var(--steam-color);
+    font-weight: 500;
+    width: fit-content;
+    height: fit-content;
+    min-width: fit-content;
+    font-size: 14px;
+    padding: 1px 9px;
+    border-radius: 7px;
+}
+
+.price::before{
+    content: "$ ";
+}

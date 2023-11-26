@@ -39,7 +39,7 @@ export function AdvancedSearch() {
                     <Select onChange={set('categories')} multiple {...categoriesProps} placeholder="Categorias" icon={GameboyIcon} />
                 </div>
             </div>
-            <Button onclick={handleFilter} icon={SearchIcon} class="w-[500px] mt-3">Pesquisar</Button>
+            <Button id="button-search-game" onclick={handleFilter} icon={SearchIcon} class="w-[500px] mt-3">Pesquisar</Button>
         </div>
     )
 }

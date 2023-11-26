@@ -9,6 +9,7 @@ export function TableGrid(props) {
 
     let gridElement;
     let updateVisibleRows;
+    let renderRows;
     const rowHeight = 200;
     const rowWidth = 310;
     let colCount = Number(Math.floor(window.innerWidth / rowWidth));
@@ -38,7 +39,7 @@ export function TableGrid(props) {
         let startIndex = 0;
         let endIndex = Math.min(startIndex + visibleRowCount, rowCount);
 
-        let updateVisibleRows = () => {
+        updateVisibleRows = () => {
             const scrollTop = gridElement.scrollTop;
             let newStartIndex = Math.floor(scrollTop / rowHeight) - bufferRowCount;
             let newEndIndex = newStartIndex + visibleRowCount + 2 * bufferRowCount;
@@ -53,7 +54,7 @@ export function TableGrid(props) {
             }
         }
 
-        function renderRows() {
+        renderRows = () => {
             gridContent.innerHTML = '';
 
             for (let i = startIndex; i < endIndex; i++) {
@@ -71,9 +72,12 @@ export function TableGrid(props) {
                         <div class="loading_image">
                             <img alt="steam-logo.png" class="image" src="${game.image}"></img>
                         </div>
-                        <div class="info">
+                        <div class="info flex-row w-full">
+                            <div class="flex flex-col">
                             <h3 class="truncate">${game.name}</h3>
                             <p class="truncate">${game.genres}</p>
+                            </div>
+                            <span class="price my-auto ml-auto">${game.price || "Free "}</span>
                         </div>
                     `;
                     rowDiv.appendChild(cellDiv);
@@ -88,7 +92,6 @@ export function TableGrid(props) {
                 colCount = Number(Math.floor(innerWidth / rowWidth))
                 updateVisibleRows()
                 renderRows()
-                console.log(innerHeight, innerWidth)
             })
             gridElement.addEventListener('scroll', () => {
                 setTimeout(updateVisibleRows)

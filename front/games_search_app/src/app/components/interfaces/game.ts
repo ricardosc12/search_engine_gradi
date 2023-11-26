@@ -10,5 +10,5 @@ export interface GameProps {
     developers: string;
     publishers: string;
     release_date: string;
-
+    price: number;
 }

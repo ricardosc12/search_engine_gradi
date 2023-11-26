@@ -18,7 +18,7 @@ export function SearchGame() {
 
     async function handleSearch(e: any) {
         if (dados.isAdvanced) return
-        
+
         const value = e.target.value
 
         const resp = await searchGame({ name: value })
@@ -49,13 +49,22 @@ export function SearchGame() {
         }, 100)
     }
 
+    function searchGameByName(e: KeyboardEvent) {
+        if (e.key == "Enter") {
+            setTimeout(() => {
+                document.getElementById("button-search-game")?.click()
+                handleBlur()
+            }, 50)
+        }
+    }
+
     return (
         <div class="flex flex-row items-center justify-center relative">
             {/* @ts-ignore */}
-            <Input onchange={dispatch.setNameFilter} id="game-input"
+            <Input class="w-[500px]" onchange={dispatch.setNameFilter} id="game-input"
                 icon={SearchIcon} placeholder="Game"
                 oninput={handleSearchDebounce} onblur={handleBlur}
-                onfocus={handleFocus} />
+                onfocus={handleFocus} onkeydown={searchGameByName} />
             <ToggleButton onclick={dispatch.setMagic} value={dados.isMagic} class="ml-3" icon={MagicIcon} />
             <ToggleButton onclick={dispatch.setAdvanced} value={dados.isAdvanced} class="ml-3" icon={FilterIcon}>
                 Filtros Avançados
@@ -78,7 +87,11 @@ function GamesList(props: GameListPros) {
                     return (
                         <div onclick={(e) => console.log(game.name)} class="flex w-full">
                             <LazyImage src={game.image} />
-                            <p>{game.name}</p>
+                            <div class="flex flex-col ml-3">
+                                <h3 class="font-medium text-lg">{game.name}</h3>
+                                <h3 class="font-normal text-xs">{game.genres}</h3>
+                            </div>
+                            <span class="price my-auto ml-auto mr-10">{game.price || "Free"}</span>
                         </div>
                     )
                 }}
@@ -99,5 +112,5 @@ export function LazyImage({ src, width }: any) {
         ]
     })
 
-    return <img width={width || '100'} src={image()} alt="game image" />
+    return <img width={width || '160'} src={image()} alt="game image" />
 }
