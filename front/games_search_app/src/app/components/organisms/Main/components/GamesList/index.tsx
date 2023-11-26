@@ -46,7 +46,6 @@ export function GamesList() {
             setGames({ data: [] })
         }
     }
-    //@ts-ignore
     createEffect(on(filters, (f) => {
         handleAdvancedSearch({ ...f, name: dados.name })
     }))
