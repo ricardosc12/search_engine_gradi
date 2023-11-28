@@ -31,8 +31,8 @@
     flex: 1;
     display: flex;
     position: relative;
-    justify-content: start;
-    align-items: start;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 #gridContent {

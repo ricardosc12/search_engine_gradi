@@ -1,5 +1,6 @@
 export function FeatureGames(){
     return (
-        <div>GAMES</div>
+        // <div>GAMES</div>
+        <></>
     )
 }

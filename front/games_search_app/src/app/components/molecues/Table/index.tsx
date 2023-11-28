@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { createEffect, createMemo, on, onMount } from 'solid-js';
+import { createEffect, createMemo, on, onCleanup, onMount } from 'solid-js';
 import './style.css'
 import { GameProps } from '../../interfaces/game';
 
@@ -9,6 +9,7 @@ export function TableGrid(props) {
 
     let gridElement;
     let updateVisibleRows;
+    let resizeFunction;
     let renderRows;
     const rowHeight = 200;
     const rowWidth = 310;
@@ -72,12 +73,12 @@ export function TableGrid(props) {
                         <div class="loading_image">
                             <img alt="steam-logo.png" class="image" src="${game.image}"></img>
                         </div>
-                        <div class="info flex-row w-full">
-                            <div class="flex flex-col">
+                        <div class="info flex-col w-full">
+                            <div class="flex flex-row items-center pt-1">
                             <h3 class="truncate">${game.name}</h3>
-                            <p class="truncate">${game.genres}</p>
-                            </div>
                             <span class="price my-auto ml-auto">${game.price || "Free "}</span>
+                            </div>
+                            <p class="truncate">${game.genres}</p>
                         </div>
                     `;
                     rowDiv.appendChild(cellDiv);
@@ -86,13 +87,19 @@ export function TableGrid(props) {
                 gridContent.appendChild(rowDiv);
             }
         }
-        if (!mount) {
-            window.addEventListener("resize", (e) => {
+
+        resizeFunction = (e) => {
+            try {
                 const { innerHeight, innerWidth } = e.target
                 colCount = Number(Math.floor(innerWidth / rowWidth))
                 updateVisibleRows()
                 renderRows()
-            })
+            } catch { }
+        }
+
+
+        if (!mount) {
+            window.addEventListener("resize", resizeFunction)
             gridElement.addEventListener('scroll', () => {
                 setTimeout(updateVisibleRows)
             });
@@ -101,6 +108,10 @@ export function TableGrid(props) {
 
         renderRows();
     }))
+
+    onCleanup(() => {
+        window.removeEventListener("resize", resizeFunction)
+    })
 
     return (
         <div ref={gridElement} id="grid"></div>

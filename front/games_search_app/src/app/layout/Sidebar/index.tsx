@@ -1,6 +1,7 @@
 import { For, createSignal } from 'solid-js'
 import style from './style.module.css'
 import { BookIcon, GamesIcon } from '@/icons';
+import { useStore } from '@/app/store';
 
 interface RouteProps {
     id: string;
@@ -15,7 +16,7 @@ export const routes = [
 
 export function Sidebar() {
 
-    const [route, setRoute] = createSignal('loja')
+    const { dados, dispatch } = useStore()
 
     function handleConfig() {
         //modal de configurações
@@ -29,8 +30,8 @@ export function Sidebar() {
                     <For each={routes}>
                         {(item: RouteProps) => (
                             <li
-                                aria-checked={route() == item.id}
-                                onclick={_ => setRoute(item.id)}>
+                                aria-checked={dados.route == item.id}
+                                onclick={_ => dispatch.setRoute(item.id)}>
                                 {item.icon()}
                                 <p>{item.title}</p>
                             </li>

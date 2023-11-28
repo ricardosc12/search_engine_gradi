@@ -1,0 +1,33 @@
+{
+    "analyzer": "standard",
+    "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+[ the,
+    2, quick, brown, foxes, jumped, over, the, lazy, dog's, bone
+]
+
+
+{
+    "tokenizer": "standard",
+    "filter": [
+        {
+            "type": "edge_ngram",
+            "min_gram": 1,
+            "max_gram": 3
+        }
+    ],
+    "text": "the quick brown fox jumps"
+}
+
+[ t, th, the, q, qu, qui, b, br, bro, f, fo, fox, j, ju, jum
+]
+
+{
+    "tokenizer": "standard",
+    "filter": { 
+        type: 'pattern',
+        pattern: ','
+    },
+    "text": "the quick brown fox jumps"
+}

@@ -12,6 +12,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import { RepositoryController } from './repositories/controller';
 import { filterGame } from './cases/Game/filter';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 const port = process.env.PORT;
@@ -44,7 +45,106 @@ async function createIndexes() {
     // repository.getDb("steam").collection("games").createIndex({ languages: 'text' })
 }
 
+app.post('/remove', async (req, res) => {
 
+    const { id } = req.body
+
+    if (!id) {
+        res.status(400).json("SEM ID")
+    }
+
+    const result = await elasticClient.search({
+        query: {
+            match: {
+                id: id
+            }
+        }
+    })
+
+    if (!result.hits.total) {
+        res.status(204).json("OK")
+    }
+
+    await repository.getDb("steam")
+        .collection("games")
+        .deleteOne({ _id: new ObjectId(id) })
+
+    const resp = await elasticClient.delete({
+        index: 'jogos',
+        id: result.hits.hits[0]._id
+    })
+
+    res.status(200).json(resp)
+})
+
+app.get('/lib', async (req, res) => {
+
+    const cursor = await repository.getDb('steam')
+        .collection("user").find();
+
+    const games = await cursor.toArray();
+
+    const cursor2 = await repository.getDb('steam')
+        .collection('games').find({
+            _id: {
+                $in: games.map(game => new ObjectId(game.game))
+            }
+        })
+
+    const game2 = await cursor2.toArray();
+    res.status(200).json(game2.map(game => ({ id: game._id, ...game })))
+})
+
+app.post('/pub', async (req, res) => {
+
+    const { languages, categories, genres,
+        recommendations, positive, price, ...rest } = req.body
+
+    const game = {
+        languages: languages.join(','),
+        categories: categories.join(','),
+        genres: genres.join(','),
+        recommendations: parseInt(recommendations),
+        positive: parseInt(positive),
+        price: parseFloat(price),
+        ...rest,
+    }
+
+    const resultado = await repository.getDb("steam")
+        .collection("games")
+        .insertOne(game)
+
+    if (!resultado.insertedId) res.status(500).json("ERROR")
+
+    try {
+        const document = {
+            id: String(resultado.insertedId),
+            ...game
+        }
+
+        delete document._id
+
+        const elasticResponse = await elasticClient.index({
+            index: 'jogos',
+            document: document
+        })
+
+        await repository.getDb("steam").collection("user")
+            .insertOne({
+                game: resultado.insertedId
+            })
+
+        return res.status(200).json(elasticResponse)
+    }
+    catch (e) {
+        await repository.getDb("steam")
+            .collection("games")
+            .deleteOne({ _id: new ObjectId(resultado.insertedId) })
+
+        return res.status(500).json("ERROR")
+    }
+
+})
 
 app.post('/users', async (req, res) => {
     try {
@@ -204,7 +304,11 @@ app.post('/sonic', async (req, res) => {
         // const result = await elasticClient.search({
         //     query: { match_all: {} }
         // })
-        res.status(200).json(await bulkGames())
+        await createIndex2()
+
+        await bulkGames()
+
+        res.status(200).json('ok')
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -267,6 +371,7 @@ async function deleteIndex(index: string) {
 }
 
 async function createIndex() {
+
     return await elasticClient.indices.create({
         index: 'jogos',
         body: {
@@ -376,3 +481,5 @@ const createIndex2 = async () => {
         }
     });
 };
+
+
