@@ -193,7 +193,7 @@ app.get("/best", async (req, res) => {
 
     return res.status(200).json(games)
 })
-app.get('/game_nomagic', async(req,res)=>{
+app.get('/game_nomagic', async (req, res) => {
 
     const { name, size, ...extra } = req.query
 
@@ -210,8 +210,39 @@ app.get('/game_nomagic', async(req,res)=>{
             must: filters
         }
     }
+    else {
+        bool = {
+            ...(name) && {
+                must: {
+                    match: {
+                        name: {
+                            query: name as string,
+                        }
+                    }
+                }
+            },
+            ...(filters.length) && {
+                filter: filters
+            }
+        }
+    }
 
-    res.status(200).json("OK")
+    const response = await elasticClient.search({
+        size: Number(size) || 10,
+        query: {
+            bool: bool
+        }
+    })
+
+    //@ts-ignore
+    const total = response.hits.total.value
+
+    if (!total) {
+        return res.status(204).json('ok')
+    }
+
+    const games = response.hits.hits.map(game => game._source)
+    res.status(200).json(games)
 })
 app.get('/game', async (req, res) => {
 

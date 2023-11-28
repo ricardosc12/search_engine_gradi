@@ -65,7 +65,7 @@ export function SearchGame() {
                 icon={SearchIcon} placeholder="Game"
                 oninput={handleSearchDebounce} onblur={handleBlur}
                 onfocus={handleFocus} onkeydown={searchGameByName} />
-            <ToggleButton onclick={dispatch.setMagic} value={dados.isMagic} class="ml-3" icon={MagicIcon} />
+            <ToggleButton id="magic-search" onclick={dispatch.setMagic} value={dados.isMagic} class="ml-3" icon={MagicIcon} />
             <ToggleButton onclick={dispatch.setAdvanced} value={dados.isAdvanced} class="ml-3" icon={FilterIcon}>
                 Filtros Avançados
             </ToggleButton>

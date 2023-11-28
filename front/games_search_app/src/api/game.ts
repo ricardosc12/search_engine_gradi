@@ -13,7 +13,8 @@ export interface SearchGameProps {
 }
 
 export function searchGame(props: SearchGameProps) {
-    return api.get('/game', {
+    const url = document.getElementById("magic-search")?.ariaChecked === "true" ? "/game" : "/game_nomagic"
+    return api.get(url, {
         params: props
     })
 }
