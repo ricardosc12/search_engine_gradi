@@ -193,7 +193,26 @@ app.get("/best", async (req, res) => {
 
     return res.status(200).json(games)
 })
+app.get('/game_nomagic', async(req,res)=>{
 
+    const { name, size, ...extra } = req.query
+
+    //@ts-ignore
+    const filters = filterGame(extra)
+
+    if (!name && !filters[0].bool.must.length) {
+        return res.status(204).json([])
+    }
+
+    let bool = {};
+    if (!name && filters.length) {
+        bool = {
+            must: filters
+        }
+    }
+
+    res.status(200).json("OK")
+})
 app.get('/game', async (req, res) => {
 
     const { name, size, ...extra } = req.query

@@ -31,7 +31,7 @@ export function AdvancedSearch() {
             <div class="flex flex-col">
                 <div class="flex items-center w-[600px] space-x-3 mb-3">
                     {/* @ts-ignore */}
-                    <Input onchange={set('ano')} placeholder="Ano de lançamento" class="min-w-[150px]" icon={CalendarIcon} />
+                    <Input onchange={set('ano')} placeholder="Ano de lançamento" class="min-w-[190px]" icon={CalendarIcon} />
                     <Select onChange={set('languages')} multiple {...languagesProps} placeholder="Idiomas" icon={LanguageIcon} />
                 </div>
                 <div class="flex w-[600px] space-x-2">
