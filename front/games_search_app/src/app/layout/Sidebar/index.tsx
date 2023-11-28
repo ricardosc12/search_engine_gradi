@@ -24,7 +24,7 @@ export function Sidebar() {
 
     return (
         <div class={style.root}>
-            <img width="100px" src="steam-logo.png" alt="STEAM" />
+            <img class='ml-3' width="100px" src="steam-logo.png" alt="STEAM" />
             <nav>
                 <ul>
                     <For each={routes}>
